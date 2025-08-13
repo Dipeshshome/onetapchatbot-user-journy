@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Tap Services AI Chatbot User Journey - Product Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+        .dashboard-container {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+        }
+
+        .dashboard-header p {
+            margin: 0 0 12px 0;
+            opacity: 0.9;
+        }
+
+        .dashboard-status {
+            display: flex;
+            gap: 20px;
+            font-size: 0.875rem;
+        }
+
+        .status-indicator {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .auto-refresh, .last-updated {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .dashboard-tab {
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #64748b;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .dashboard-tab.active {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .dashboard-tab:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
+        .dashboard-content {
+            display: none;
+        }
+
+        .dashboard-content.active {
+            display: block;
+        }
+
+        .dashboard-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card-large {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            position: relative;
+        }
+
+        .metric-card-large .metric-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            display: block;
+        }
+
+        .metric-card-large .metric-card-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .metric-trend {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .metric-trend.positive {
+            color: #10b981;
+        }
+
+        .metric-trend.negative {
+            color: #ef4444;
+        }
+
+        .dashboard-charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-container h4 {
+            margin: 0 0 16px 0;
+            color: #1f2937;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: #f8fafc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .trend-line {
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(to right, #7c3aed, #a855f7);
+            position: relative;
+        }
+
+        .trend-line::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -20px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+            border-radius: 50%;
+        }
+
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #f59e0b 0deg 280deg,
+                #10b981 280deg 350deg,
+                #ef4444 350deg 360deg
+            );
+            margin-bottom: 12px;
+        }
+
+        .orders-header, .users-header, .analytics-header, .conversations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .refresh-btn {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .orders-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select, .search-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .orders-count {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .orders-table, .users-table {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr;
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr;
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            align-items: center;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .customer-info, .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .customer-avatar, .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: #e0e7ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .customer-details, .user-details {
+            min-width: 0;
+        }
+
+        .customer-contact, .customer-details strong, .user-details strong {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .customer-contact, .user-id, .order-id {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .service-info {
+            font-size: 0.875rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .service-date, .service-time {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-badge.confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge.cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.625rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .priority-badge.medium {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .price-info {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn.whatsapp {
+            background: #dcf8c6;
+            color: #25d366;
+        }
+
+        .action-btn.call {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .action-btn.view {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .users-metrics, .analytics-metrics, .conversation-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card-medium {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            position: relative;
+        }
+
+        .metric-card-medium .metric-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .metric-card-medium .metric-card-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .users-table .table-header {
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+        }
+
+        .users-table .table-row {
+            grid-template-columns: 2fr 1.5fr 1fr 1fr;
+        }
+
+        .contact-info, .date-info {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .analytics-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-section h4 {
+            margin: 0 0 16px 0;
+            color: #1f2937;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bar-label {
+            font-size: 0.875rem;
+            color: #374151;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .bar-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 60px;
+        }
+
+        .bar-fill {
+            height: 8px;
+            background: #7c3aed;
+            border-radius: 4px;
+            min-width: 20px;
+        }
+
+        .bar-value span {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .service-performance {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .performance-item {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .performance-item strong {
+            display: block;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .performance-details {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .conversation-analysis {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-top: 24px;
+        }
+
+        .conversation-analysis h4 {
+            margin: 0 0 16px 0;
+            color: #1f2937;
+        }
+
+        .intent-chart .chart-placeholder {
+            height: 150px;
+            background: linear-gradient(to top, #f3f4f6, #e5e7eb);
+            position: relative;
+        }
+
+        .intent-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            padding-bottom: 8px;
+        }
+
+        /* Responsive Design for Dashboard */
+        @media (max-width: 1024px) {
+            .dashboard-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header, .table-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .table-row {
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .dashboard-tabs {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 16px;
+            }
+            
+            .dashboard-metrics {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .orders-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+        }
+
+        /* Dashboard Animation Effects */
+        .dashboard-tab {
+            transition: all 0.3s ease;
+        }
+
+        .metric-card-large:hover, .metric-card-medium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .table-row:hover {
+            background: #f8fafc;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+
+        /* Loading States */
+        .metric-card-large.loading, .metric-card-medium.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .metric-card-large.loading .metric-card-value,
+        .metric-card-medium.loading .metric-card-value {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+            color: transparent;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            padding: 48px 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .metrics-banner {
+            background: white;
+            padding: 32px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            text-align: center;
+        }
+
+        .metric {
+            padding: 16px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #7c3aed;
+            display: block;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .metric-change {
+            font-size: 0.75rem;
+            color: #10b981;
+            margin-top: 4px;
+        }
+
+        .content {
+            background: white;
+            padding: 48px 0;
+        }
+
+        .journey-phase {
+            margin-bottom: 64px;
+            border-left: 4px solid #7c3aed;
+            padding-left: 32px;
+            position: relative;
+        }
+
+        .phase-number {
+            position: absolute;
+            left: -16px;
+            top: 0;
+            background: #7c3aed;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .phase-header {
+            margin-bottom: 24px;
+        }
+
+        .phase-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .phase-subtitle {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .phase-metrics {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .phase-metric {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .phase-metric-value {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .phase-metric-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .user-flow {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e5e7eb;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .flow-step:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .step-icon {
+            background: #7c3aed;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .chat-interface {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+
+        .chat-header {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-bottom: 16px;
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #374151;
+        }
+
+        .luna-interface {
+            background: #7c3aed;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0;
+            color: white;
+        }
+
+        .luna-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .luna-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .luna-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .luna-info p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .luna-message {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .user-input {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin: 8px 0;
+            font-size: 0.875rem;
+            max-width: 70%;
+            margin-left: auto;
+        }
+
+        .booking-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .form-button {
+            background: #7c3aed;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .order-confirmation {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .confirmation-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #14532d;
+            margin-bottom: 12px;
+        }
+
+        .order-details {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .insights-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .insights-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insights-content {
+            color: #78350f;
+            font-size: 0.875rem;
+        }
+
+        .optimization-card {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .optimization-title {
+            font-weight: 600;
+            color: #14532d;
+            margin-bottom: 8px;
+        }
+
+        .optimization-content {
+            color: #15803d;
+            font-size: 0.875rem;
+        }
+
+        .success-metrics {
+            background: #f0f9ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .success-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .metric-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0369a1;
+        }
+
+        .metric-card-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .phase-title {
+                font-size: 1.5rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>🎯 One-Tap Services AI Chatbot Journey</h1>
+            <p>Real product documentation based on actual Luna chatbot implementation</p>
+        </div>
+    </header>
+
+    <!-- Key Metrics Banner -->
+    <section class="metrics-banner">
+        <div class="container">
+            <div class="metrics-grid">
+                <div class="metric">
+                    <span class="metric-value">4.8★</span>
+                    <div class="metric-label">Rating (13.6K reviews)</div>
+                    <div class="metric-change">Trusted by 350+ users</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-value">360°</span>
+                    <div class="metric-label">Services Available</div>
+                    <div class="metric-change">At your fingertips</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-value">Luna</span>
+                    <div class="metric-label">AI Assistant</div>
+                    <div class="metric-change">One-Tap Services</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-value">Real-time</span>
+                    <div class="metric-label">Chat Support</div>
+                    <div class="metric-change">Instant responses</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="content">
+        <div class="container">
+            <!-- Phase 1: Website Landing & Registration -->
+            <div class="journey-phase">
+                <div class="phase-number">1</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">🌟 Website Landing & Initial Engagement</h2>
+                    <p class="phase-subtitle">First touchpoint with One-Tap Services platform</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">onetapservice.com</div>
+                            <div class="phase-metric-label">Landing Page</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Mobile First</div>
+                            <div class="phase-metric-label">Design Approach</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Purple Branding</div>
+                            <div class="phase-metric-label">Brand Identity</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-content">
+                            <div class="step-title">Landing Page Experience</div>
+                            <div class="step-description">User visits onetapservice.com and sees "Non-stop 360 services near at your fingertips" with mobile app showcase</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">📱</div>
+                        <div class="step-content">
+                            <div class="step-title">Social Proof Display</div>
+                            <div class="step-description">Prominent display of 4.8★ rating with 13.6K reviews and "Trusted by 350+ users" testimonials</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">🚀</div>
+                        <div class="step-content">
+                            <div class="step-title">Get Started CTA</div>
+                            <div class="step-description">Purple "Get Started" button triggers registration form overlay</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-form">
+                    <div class="form-title">Please provide your information to continue</div>
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="Enter your phone number">
+                    </div>
+                    <button class="form-button">Continue</button>
+                </div>
+
+                <div class="insights-box">
+                    <div class="insights-title">💡 Product Insights</div>
+                    <div class="insights-content">
+                        <strong>Mobile-first approach:</strong> Dual phone mockups showcase the app interface prominently. Strong social proof with specific numbers (4.8★, 13.6K reviews) builds immediate trust. Minimal registration form reduces friction.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Luna Activation & Problem Discovery -->
+            <div class="journey-phase">
+                <div class="phase-number">2</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">🤖 Luna AI Assistant Activation</h2>
+                    <p class="phase-subtitle">Initial chat engagement and problem identification</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Luna</div>
+                            <div class="phase-metric-label">AI Assistant Name</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Personalized</div>
+                            <div class="phase-metric-label">Welcome Message</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">AC Repair</div>
+                            <div class="phase-metric-label">Example Service</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-header">
+                        <div class="luna-avatar">👩‍💼</div>
+                        <div class="luna-info">
+                            <h3>Luna</h3>
+                            <p>One-Tap Services Assistant</p>
+                        </div>
+                    </div>
+                    <div class="luna-message">
+                        Hi AL Mamun! Welcome to One-Tap Services. I'm Luna, your personal assistant. How can I help you today?
+                    </div>
+                    <div class="user-input">My is not cooling. Making Loud Noises</div>
+                    <div class="luna-message">
+                        Sorry to hear that your air conditioner is not cooling and making loud noises, AL Mamun. I'm here to help you troubleshoot the issue or find a suitable repair service.
+                        <br><br>
+                        <strong>Based on your issue, here are services that might help:</strong>
+                        <br>• AC Repair Service -
+                    </div>
+                </div>
+
+                <div class="optimization-card">
+                    <div class="optimization-title">🎯 Luna's Key Features</div>
+                    <div class="optimization-content">
+                        • <strong>Personalized greeting:</strong> Uses customer's name (AL Mamun) for personal connection<br>
+                        • <strong>Problem acknowledgment:</strong> Shows empathy with "Sorry to hear that"<br>
+                        • <strong>Immediate assistance:</strong> Offers both troubleshooting and professional service<br>
+                        • <strong>Service matching:</strong> Automatically suggests relevant AC repair services
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3: Service Selection & Information -->
+            <div class="journey-phase">
+                <div class="phase-number">3</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">🔧 Service Discovery & Selection</h2>
+                    <p class="phase-subtitle">Intelligent service recommendations and detailed information</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Multiple Options</div>
+                            <div class="phase-metric-label">Service Variants</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">1500 BDT</div>
+                            <div class="phase-metric-label">Maintenance Package</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Learn More</div>
+                            <div class="phase-metric-label">Information Access</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-header">
+                        <div class="luna-avatar">👩‍💼</div>
+                        <div class="luna-info">
+                            <h3>Luna</h3>
+                            <p>One-Tap Services Assistant</p>
+                        </div>
+                    </div>
+                    <div class="luna-message">
+                        • <strong>AC Maintenance Package</strong> - Regular servicing and minor repairs (1500 BDT)
+                        <br><br>
+                        Which option would you like more information about? You can select by number or name.
+                        <br><br>
+                        <strong>What would you like to do next?</strong>
+                        <br>• Learn more about AC Repair Service
+                        <br>• Learn more about AC Deep Cleaning  
+                        <br>• Learn more about AC Maintenance Package
+                    </div>
+                </div>
+
+                <div class="user-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">🎯</div>
+                        <div class="step-content">
+                            <div class="step-title">Service Recommendation</div>
+                            <div class="step-description">Luna presents multiple relevant services based on the AC cooling and noise problem</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">💰</div>
+                        <div class="step-content">
+                            <div class="step-title">Transparent Pricing</div>
+                            <div class="step-description">Clear pricing shown upfront (1500 BDT for maintenance package)</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">📚</div>
+                        <div class="step-content">
+                            <div class="step-title">Information Access</div>
+                            <div class="step-description">Multiple "Learn more" options allow customers to get detailed service information</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Service Details & Recommendation -->
+            <div class="journey-phase">
+                <div class="phase-number">4</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">💡 Intelligent Service Recommendation</h2>
+                    <p class="phase-subtitle">AI-powered service matching and detailed explanations</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">1200 BDT</div>
+                            <div class="phase-metric-label">AC Repair Price</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Smart Recommendation</div>
+                            <div class="phase-metric-label">AI Analysis</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Professional Service</div>
+                            <div class="phase-metric-label">Quality Assurance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-header">
+                        <div class="luna-avatar">👩‍💼</div>
+                        <div class="luna-info">
+                            <h3>Luna</h3>
+                            <p>One-Tap Services Assistant</p>
+                        </div>
+                    </div>
+                    <div class="luna-message">
+                        <button style="background: #7c3aed; color: white; padding: 8px 16px; border: none; border-radius: 6px; margin-bottom: 12px;">Recommend me a service instead</button>
+                        <br><br>
+                        Based on the issues you're experiencing with your air conditioner, I recommend our <strong>AC Repair Service</strong>. Our professional technicians will diagnose and fix the problem, ensuring your AC is running efficiently and effectively.
+                        <br><br>
+                        Here's what you can expect from our AC Repair Service:
+                        <br>• Complete diagnostics to identify the root cause of the issue
+                        <br>• Thorough cleaning and maintenance to ensure optimal performance
+                        <br>• Expert advice on how to prevent future issues
+                        <br><br>
+                        <strong>Price:</strong> 1200 BDT (includes all necessary repairs and maintenance)
+                        <br><br>
+                        <strong>What would you like to do next?</strong>
+                        <br>• Book this service
+                        <br>• Learn more about this service
+                        <br>• See other service options
+                    </div>
+                </div>
+
+                <div class="optimization-card">
+                    <div class="optimization-title">🎯 Recommendation Engine Features</div>
+                    <div class="optimization-content">
+                        • <strong>Proactive recommendation:</strong> "Recommend me a service instead" button for decision-hesitant users<br>
+                        • <strong>Problem-solution mapping:</strong> Links specific issues to appropriate services<br>
+                        • <strong>Value explanation:</strong> Details what's included in the service price<br>
+                        • <strong>Clear next steps:</strong> Three distinct paths (book, learn more, see alternatives)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5: Booking Process -->
+            <div class="journey-phase">
+                <div class="phase-number">5</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">📋 Seamless Booking Experience</h2>
+                    <p class="phase-subtitle">Streamlined form-based booking with pre-filled information</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Pre-filled</div>
+                            <div class="phase-metric-label">Customer Data</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Date/Time</div>
+                            <div class="phase-metric-label">Scheduling</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Special Instructions</div>
+                            <div class="phase-metric-label">Customization</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-form">
+                    <div class="form-title">Book ac repair service</div>
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-input" value="AL Mamun" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" value="01822419745" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email (Optional)</label>
+                        <input type="email" class="form-input" value="almamun@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-input" value="15/9/C H R Villa. Modhubag, Moghbazar." style="background: #e0e7ff;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" value="2025-08-14">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <select class="form-input">
+                            <option>04:00 PM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Special Instructions (Optional)</label>
+                        <textarea class="form-input" rows="3" placeholder="Any special requests or instructions..."></textarea>
+                    </div>
+                    <button class="form-button">Confirm Booking</button>
+                    <button style="background: #e5e7eb; color: #374151; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 8px;">Back to Chat</button>
+                </div>
+
+                <div class="insights-box">
+                    <div class="insights-title">💡 Booking Flow Insights</div>
+                    <div class="insights-content">
+                        <strong>Friction reduction:</strong> Pre-filled name and phone from registration. Address field highlighted for attention. Optional email reduces mandatory fields. "Back to Chat" provides escape route for uncertain customers.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 6: Order Confirmation -->
+            <div class="journey-phase">
+                <div class="phase-number">6</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">✅ Booking Confirmation & Order Management</h2>
+                    <p class="phase-subtitle">Immediate confirmation with order tracking capabilities</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">OTP-20250813</div>
+                            <div class="phase-metric-label">Order ID Format</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Instant</div>
+                            <div class="phase-metric-label">Confirmation</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Order Tracking</div>
+                            <div class="phase-metric-label">Real-time Updates</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-confirmation">
+                    <div class="confirmation-header">
+                        <span>✅</span>
+                        <span>Booking Confirmed!</span>
+                    </div>
+                    <div class="order-details">
+                        <strong>Order ID:</strong> OTP-20250813-A151E4<br>
+                        <strong>Service:</strong> AC Repair Service<br>
+                        <strong>Date:</strong> 2025-08-14<br>
+                        <strong>Time:</strong> 04:00 PM<br>
+                        <strong>Address:</strong> 15/9/C H R Villa. Modhubag, Moghbazar.<br><br>
+                        Your order has been placed successfully.<br>
+                        Please save this ID for your reference.
+                    </div>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-header">
+                        <div class="luna-avatar">👩‍💼</div>
+                        <div class="luna-info">
+                            <h3>Luna</h3>
+                            <p>One-Tap Services Assistant</p>
+                        </div>
+                    </div>
+                    <div class="luna-message">
+                        Thank you for booking our ac repair service service!
+                        <br><br>
+                        <strong>What would you like to do next?</strong>
+                        <br>1. Book another service
+                    </div>
+                </div>
+
+                <div class="optimization-card">
+                    <div class="optimization-title">🎯 Confirmation Best Practices</div>
+                    <div class="optimization-content">
+                        • <strong>Clear visual confirmation:</strong> Green checkmark and "Booking Confirmed!" message<br>
+                        • <strong>Order ID prominence:</strong> Unique identifier for tracking and reference<br>
+                        • <strong>Complete service summary:</strong> All booking details in one place<br>
+                        • <strong>Immediate upsell opportunity:</strong> "Book another service" suggestion
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 7: Order Tracking & Management -->
+            <div class="journey-phase">
+                <div class="phase-number">7</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">📊 Order Tracking & Management</h2>
+                    <p class="phase-subtitle">Real-time order status and modification capabilities</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Pending Status</div>
+                            <div class="phase-metric-label">Order State</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Full Details</div>
+                            <div class="phase-metric-label">Information Access</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Update/Cancel</div>
+                            <div class="phase-metric-label">Modification Options</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-header">
+                        <div class="luna-avatar">👩‍💼</div>
+                        <div class="luna-info">
+                            <h3>Luna</h3>
+                            <p>One-Tap Services Assistant</p>
+                        </div>
+                    </div>
+                    <div class="luna-message">
+                        order details of OTP-20250813-A151E4
+                    </div>
+                </div>
+
+                <div class="order-details">
+                    <h3>Order Information</h3>
+                    <p><strong>Order ID:</strong> OTP-20250813-A151E4</p>
+                    <p><strong>Status:</strong> Pending</p>
+                    <p><strong>Service:</strong> ac repair service</p>
+                    <p><strong>Date:</strong> 2025-08-14</p>
+                    <p><strong>Time:</strong> 04:00 PM</p>
+                    <p><strong>Address:</strong> 15/9/C H R Villa. Modhubag, Moghbazar.</p>
+                </div>
+
+                <div class="luna-interface">
+                    <div class="luna-message">
+                        Your order is currently being processed. Our team will confirm your booking soon.
+                        <br><br>
+                        <strong>What would you like to do with this order?</strong>
+                        <br>1. Update booking details
+                        <br>2. Cancel this booking
+                        <br>3. Book another service
+                    </div>
+                </div>
+
+                <div class="user-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">📱</div>
+                        <div class="step-content">
+                            <div class="step-title">Order Query</div>
+                            <div class="step-description">Customer can request order details by mentioning order ID to Luna</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">📋</div>
+                        <div class="step-content">
+                            <div class="step-title">Comprehensive Details</div>
+                            <div class="step-description">Full order information displayed including status, service, date, time, and address</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">🔧</div>
+                        <div class="step-content">
+                            <div class="step-title">Management Options</div>
+                            <div class="step-description">Three clear actions: update details, cancel booking, or book additional services</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 8: Order Modification -->
+            <div class="journey-phase">
+                <div class="phase-number">8</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">🔄 Order Updates & Modifications</h2>
+                    <p class="phase-subtitle">Flexible booking management and cancellation process</p>
+                    <div class="phase-metrics">
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Update Form</div>
+                            <div class="phase-metric-label">Modification Interface</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Current Details</div>
+                            <div class="phase-metric-label">Reference Display</div>
+                        </div>
+                        <div class="phase-metric">
+                            <div class="phase-metric-value">Cancellation</div>
+                            <div class="phase-metric-label">Exit Option</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-form">
+                    <div class="form-title">Update Booking Details for Order OTP-20250813-A151E4</div>
+                    <p style="color: #6b7280; margin-bottom: 20px;">You can update your booking details for the AC Repair Service scheduled for 2025-08-14 at 04:00 PM.</p>
+                    
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4>Current Booking Details:</h4>
+                        <p><strong>Address:</strong> 15/9/C H R Villa. Modhubag, Moghbazar.</p>
+                        <p><strong>Date:</strong> 2025-08-14</p>
+                        <p><strong>Time:</strong> 04:00 PM</p>
+                    </div>
+                </div>
+
+                <div class="order-confirmation" style="background: #fee2e2; border-color: #ef4444;">
+                    <div class="confirmation-header" style="color: #991b1b;">
+                        <span>✅</span>
+                        <span>Order Cancellation Confirmed!</span>
+                    </div>
+                    <div class="order-details">
+                        Your order OTP-20250813-1AF59F for the AC Repair Service has been cancelled successfully.
+                        <br><br>
+                        We apologize for any inconvenience this may have caused. If you need to book another service or have any questions, please feel free to ask.
+                        <br><br>
+                        <strong>What would you like to do next?</strong>
+                        <br>• Book another service
+                        <br>• Learn more about our services
+                    </div>
+                </div>
+
+                <div class="insights-box">
+                    <div class="insights-title">💡 Order Management Insights</div>
+                    <div class="insights-content">
+                        <strong>Flexibility focus:</strong> Easy update and cancellation process reduces customer frustration. Current details shown for reference. Apologetic tone for cancellations maintains relationship. Immediate rebooking options prevent complete loss.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 9: Overall Journey Analysis -->
+            <div class="journey-phase">
+                <div class="phase-number">📊</div>
+                <div class="phase-header">
+                    <h2 class="phase-title">📈 Complete Journey Analysis</h2>
+                    <p class="phase-subtitle">End-to-end user experience evaluation and optimization insights</p>
+                </div>
+
+                <div class="success-metrics">
+                    <div class="success-title">🎯 Journey Performance Metrics</div>
+                    <div class="metrics-row">
+                        <div class="metric-card">
+                            <div class="metric-card-value">8 Phases</div>
+                            <div class="metric-card-label">Complete User Journey</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">Luna AI</div>
+                            <div class="metric-card-label">Personalized Assistant</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">Real-time</div>
+                            <div class="metric-card-label">Order Management</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">4.8★</div>
+                            <div class="metric-card-label">Customer Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">🌐</div>
+                        <div class="step-content">
+                            <div class="step-title">Website Landing → Registration</div>
+                            <div class="step-description">Professional landing page with social proof leads to minimal registration form</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">🤖</div>
+                        <div class="step-content">
+                            <div class="step-title">Luna Activation → Problem Solving</div>
+                            <div class="step-description">AI assistant provides personalized greeting and immediate problem acknowledgment</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">🔧</div>
+                        <div class="step-content">
+                            <div class="step-title">Service Discovery → Recommendation</div>
+                            <div class="step-description">Multiple service options with transparent pricing and intelligent recommendations</div>
+                        </div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="step-icon">📋</div>
+                        <div class="step-content">
+                            <div class="step-title">Booking → Confirmation → Management</div>
+                            <div class="step-description">Streamlined booking with pre-filled data, instant confirmation, and flexible management options</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimization-card">
+                    <div class="optimization-title">🚀 Key Strengths of One-Tap Services Journey</div>
+                    <div class="optimization-content">
+                        • <strong>Personalization:</strong> Luna uses customer names and tailors responses to specific problems<br>
+                        • <strong>Transparency:</strong> Clear pricing, service descriptions, and order details throughout<br>
+                        • <strong>Flexibility:</strong> Easy booking modifications and cancellations with friendly messaging<br>
+                        • <strong>Continuity:</strong> Seamless chat-to-form-to-chat experience maintains context<br>
+                        • <strong>Trust Building:</strong> Strong social proof, professional branding, and reliable order tracking
+                    </div>
+                </div>
+
+                <div class="insights-box">
+                    <div class="insights-title">💡 Strategic Product Insights</div>
+                    <div class="insights-content">
+                        <strong>Conversion-optimized design:</strong> The journey balances automation with human touch. Luna's conversational AI reduces friction while maintaining personal connection. Form-based booking provides structure while chat maintains engagement. Order management features reduce support burden while improving satisfaction.
+                    </div>
+                </div>
+
+                <div class="success-metrics">
+                    <div class="success-title">📊 Competitive Advantages</div>
+                    <div class="metrics-row">
+                        <div class="metric-card">
+                            <div class="metric-card-value">Hybrid Approach</div>
+                            <div class="metric-card-label">Chat + Form Interface</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">Mobile-First</div>
+                            <div class="metric-card-label">Design Philosophy</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">360° Services</div>
+                            <div class="metric-card-label">Comprehensive Offering</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">Real-time</div>
+                            <div class="metric-card-label">Order Management</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="optimization-card">
+                    <div class="optimization-title">🔮 Future Enhancement Opportunities</div>
+                    <div class="optimization-content">
+                        • <strong>Enhanced AI:</strong> More sophisticated problem diagnosis and service matching<br>
+                        • <strong>Multimedia Support:</strong> Photo uploads for better problem assessment<br>
+                        • <strong>Proactive Updates:</strong> Automated status notifications via SMS/email<br>
+                        • <strong>Service History:</strong> Past booking reference and repeat service shortcuts<br>
+                        • <strong>Payment Integration:</strong> In-chat payment processing for seamless transactions<br>
+                        • <strong>Technician Tracking:</strong> Real-time location updates for scheduled services
+                    </div>
+                </div>
+
+                <div class="success-metrics">
+                    <div class="success-title">🎯 Success Factors Summary</div>
+                    <div class="metrics-row">
+                        <div class="metric-card">
+                            <div class="metric-card-value">13.6K</div>
+                            <div class="metric-card-label">Customer Reviews</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">350+</div>
+                            <div class="metric-card-label">Trusted Users</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">4.8★</div>
+                            <div class="metric-card-label">Average Rating</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-card-value">360°</div>
+                            <div class="metric-card-label">Service Coverage</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h3>One-Tap Chatbot Dashboard</h3>
+            <p>Real-time business analytics powered by MongoDB Atlas</p>
+            <div class="dashboard-status">
+                <span class="status-indicator">🟢 Connected</span>
+                <span class="auto-refresh">✅ Auto-refresh</span>
+                <span class="last-updated">Updated: 12:05:28</span>
+            </div>
+        </div>
+
+        <div class="dashboard-tabs">
+            <button class="dashboard-tab active" onclick="switchDashboardTab(event, 'overview')">📊 Overview</button>
+            <button class="dashboard-tab" onclick="switchDashboardTab(event, 'orders')">📋 Orders Management</button>
+            <button class="dashboard-tab" onclick="switchDashboardTab(event, 'users')">👥 Users</button>
+            <button class="dashboard-tab" onclick="switchDashboardTab(event, 'orders-analytics')">📈 Orders Analytics</button>
+            <button class="dashboard-tab" onclick="switchDashboardTab(event, 'conversations')">💬 Conversations</button>
+        </div>
+
+        <div id="overview" class="dashboard-content active">
+            <div class="dashboard-metrics">
+                <div class="metric-card-large">
+                    <div class="metric-card-value">140</div>
+                    <div class="metric-card-label">Total Users</div>
+                    <div class="metric-trend positive">↗ +12.5%</div>
+                </div>
+                <div class="metric-card-large">
+                    <div class="metric-card-value">81</div>
+                    <div class="metric-card-label">Total Orders</div>
+                    <div class="metric-trend positive">↗ +8.3%</div>
+                </div>
+                <div class="metric-card-large">
+                    <div class="metric-card-value">466</div>
+                    <div class="metric-card-label">Conversations</div>
+                    <div class="metric-trend positive">↗ +15.7%</div>
+                </div>
+                <div class="metric-card-large">
+                    <div class="metric-card-value">57.9%</div>
+                    <div class="metric-card-label">Conversion Rate</div>
+                    <div class="metric-trend positive">↗ +5.1%</div>
+                </div>
+                <div class="metric-card-large">
+                    <div class="metric-card-value">₹0</div>
+                    <div class="metric-card-label">Revenue</div>
+                    <div class="metric-trend positive">↗ +18.2%</div>
+                </div>
+                <div class="metric-card-large">
+                    <div class="metric-card-value">₹0</div>
+                    <div class="metric-card-label">Avg Order Value</div>
+                    <div class="metric-trend negative">↘ -2.3%</div>
+                </div>
+            </div>
+
+            <div class="dashboard-charts">
+                <div class="chart-container">
+                    <h4>Revenue Trend</h4>
+                    <div class="chart-placeholder">
+                        <div class="trend-line"></div>
+                        <p>Revenue tracking over time (July 20 - July 26, 2025)</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h4>Order Status Distribution</h4>
+                    <div class="chart-placeholder">
+                        <div class="pie-chart"></div>
+                        <p>Real-time order status breakdown</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="orders" class="dashboard-content">
+            <div class="orders-header">
+                <h3>Orders Management</h3>
+                <p>Manage orders and contact customers via WhatsApp</p>
+                <button class="refresh-btn">🔄 Refresh</button>
+            </div>
+
+            <div class="orders-filters">
+                <select class="filter-select">
+                    <option>All Status</option>
+                    <option>Pending</option>
+                    <option>Confirmed</option>
+                    <option>Completed</option>
+                    <option>Cancelled</option>
+                </select>
+                <select class="filter-select">
+                    <option>All Dates</option>
+                    <option>Today</option>
+                    <option>This Week</option>
+                    <option>This Month</option>
+                </select>
+                <input type="search" placeholder="Search orders, customers..." class="search-input">
+                <span class="orders-count">81 orders found</span>
+            </div>
+
+            <div class="orders-table">
+                <div class="table-header">
+                    <div class="table-col">ORDER & CUSTOMER</div>
+                    <div class="table-col">SERVICE & TIME</div>
+                    <div class="table-col">STATUS & PRIORITY</div>
+                    <div class="table-col">PRICE</div>
+                    <div class="table-col">ACTIONS</div>
+                </div>
+
+                <div class="table-row">
+                    <div class="customer-info">
+                        <div class="customer-avatar">👤</div>
+                        <div class="customer-details">
+                            <strong>Jahangir Alom</strong>
+                            <div class="customer-contact">📞 01736153339</div>
+                            <div class="order-id">OTP-20250804-21141</div>
+                        </div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">🚛 mini truck service</div>
+                        <div class="service-date">📅 August 27, 2025</div>
+                        <div class="service-time">⏰ 10:00</div>
+                    </div>
+                    <div class="status-info">
+                        <span class="status-badge confirmed">✅ Confirmed</span>
+                        <span class="priority-badge medium">Medium</span>
+                    </div>
+                    <div class="price-info">₹0</div>
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp">💬</button>
+                        <button class="action-btn call">📞</button>
+                        <button class="action-btn view">👁️</button>
+                    </div>
+                </div>
+
+                <div class="table-row">
+                    <div class="customer-info">
+                        <div class="customer-avatar">👤</div>
+                        <div class="customer-details">
+                            <strong>Dipesh</strong>
+                            <div class="customer-contact">📞 01547895154</div>
+                            <div class="order-id">OTP-20250803-552DF</div>
+                        </div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">🔧 AC Basic Service</div>
+                        <div class="service-date">📅 2025-08-04</div>
+                        <div class="service-time">⏰ 10:00 AM</div>
+                    </div>
+                    <div class="status-info">
+                        <span class="status-badge pending">⏳ Pending</span>
+                        <span class="priority-badge medium">Medium</span>
+                    </div>
+                    <div class="price-info">₹0</div>
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp">💬</button>
+                        <button class="action-btn call">📞</button>
+                        <button class="action-btn view">👁️</button>
+                    </div>
+                </div>
+
+                <div class="table-row">
+                    <div class="customer-info">
+                        <div class="customer-avatar">👤</div>
+                        <div class="customer-details">
+                            <strong>Lifeplus Bangladesh</strong>
+                            <div class="customer-contact">📞 01785565426</div>
+                            <div class="order-id">OTP-20250727-48470A</div>
+                        </div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-name">🔧 AC Installation Service</div>
+                        <div class="service-date">📅 2025-07-28</div>
+                        <div class="service-time">⏰ 10:00</div>
+                    </div>
+                    <div class="status-info">
+                        <span class="status-badge pending">⏳ Pending</span>
+                        <span class="priority-badge medium">Medium</span>
+                    </div>
+                    <div class="price-info">₹0</div>
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp">💬</button>
+                        <button class="action-btn call">📞</button>
+                        <button class="action-btn view">👁️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="users" class="dashboard-content">
+            <div class="users-header">
+                <h3>User Management</h3>
+                <button class="refresh-btn">🔄 Refresh</button>
+            </div>
+
+            <div class="users-metrics">
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">0</div>
+                    <div class="metric-card-label">New Users Today</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">42</div>
+                    <div class="metric-card-label">Active Users</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">140</div>
+                    <div class="metric-card-label">Total Users</div>
+                </div>
+            </div>
+
+            <div class="users-table">
+                <div class="table-header">
+                    <div class="table-col">USER</div>
+                    <div class="table-col">CONTACT</div>
+                    <div class="table-col">CREATED</div>
+                    <div class="table-col">LAST ACTIVE</div>
+                </div>
+
+                <div class="table-row">
+                    <div class="user-info">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-details">
+                            <strong>nur</strong>
+                            <div class="user-id">user_01782811225</div>
+                        </div>
+                    </div>
+                    <div class="contact-info">📞 01782811225</div>
+                    <div class="date-info">12/08/2025</div>
+                    <div class="date-info">12/08/2025</div>
+                </div>
+
+                <div class="table-row">
+                    <div class="user-info">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-details">
+                            <strong>Dipesh</strong>
+                            <div class="user-id">user_01457895154</div>
+                        </div>
+                    </div>
+                    <div class="contact-info">📞 01457895154</div>
+                    <div class="date-info">11/08/2025</div>
+                    <div class="date-info">11/08/2025</div>
+                </div>
+
+                <div class="table-row">
+                    <div class="user-info">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-details">
+                            <strong>Shohan</strong>
+                            <div class="user-id">user_01676660630</div>
+                        </div>
+                    </div>
+                    <div class="contact-info">📞 01676660630</div>
+                    <div class="date-info">08/08/2025</div>
+                    <div class="date-info">08/08/2025</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="orders-analytics" class="dashboard-content">
+            <div class="analytics-header">
+                <h3>Orders Analytics</h3>
+            </div>
+
+            <div class="analytics-metrics">
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">78</div>
+                    <div class="metric-card-label">Pending Orders</div>
+                    <div class="metric-icon">⏳</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">0</div>
+                    <div class="metric-card-label">Completed Orders</div>
+                    <div class="metric-icon">✅</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">1</div>
+                    <div class="metric-card-label">Cancelled Orders</div>
+                    <div class="metric-icon">❌</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">0</div>
+                    <div class="metric-card-label">Today's Orders</div>
+                    <div class="metric-icon">📅</div>
+                </div>
+            </div>
+
+            <div class="analytics-charts">
+                <div class="chart-section">
+                    <h4>Popular Services</h4>
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <div class="bar-label">Kitchen Deep Cleaning</div>
+                            <div class="bar-value">
+                                <div class="bar-fill" style="width: 100%;"></div>
+                                <span>8</span>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Bathroom Deep Cleaning</div>
+                            <div class="bar-value">
+                                <div class="bar-fill" style="width: 62.5%;"></div>
+                                <span>5</span>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">Kitchen Deep Cleaning</div>
+                            <div class="bar-value">
+                                <div class="bar-fill" style="width: 62.5%;"></div>
+                                <span>5</span>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <div class="bar-label">AC Repair Service</div>
+                            <div class="bar-value">
+                                <div class="bar-fill" style="width: 62.5%;"></div>
+                                <span>5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h4>Service Performance</h4>
+                    <div class="service-performance">
+                        <div class="performance-item">
+                            <strong>AC Basic Service</strong>
+                            <div class="performance-details">8 orders • ₹0 Revenue</div>
+                        </div>
+                        <div class="performance-item">
+                            <strong>Bathroom Deep Cleaning</strong>
+                            <div class="performance-details">5 orders • ₹0 Revenue</div>
+                        </div>
+                        <div class="performance-item">
+                            <strong>Kitchen Deep Cleaning</strong>
+                            <div class="performance-details">5 orders • ₹0 Revenue</div>
+                        </div>
+                        <div class="performance-item">
+                            <strong>AC Repair Service</strong>
+                            <div class="performance-details">5 orders • ₹0 Revenue</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="conversations" class="dashboard-content">
+            <div class="conversations-header">
+                <h3>Conversation Analytics</h3>
+            </div>
+
+            <div class="conversation-metrics">
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">466</div>
+                    <div class="metric-card-label">Total Sessions</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">4.2 min</div>
+                    <div class="metric-card-label">Avg Session Length</div>
+                </div>
+                <div class="metric-card-medium">
+                    <div class="metric-card-value">78.5%</div>
+                    <div class="metric-card-label">Completion Rate</div>
+                </div>
+            </div>
+
+            <div class="conversation-analysis">
+                <h4>User Intents Analysis</h4>
+                <div class="intent-chart">
+                    <div class="chart-placeholder">
+                        <div class="intent-bar" style="height: 60px; background: #7c3aed;">
+                            <span>186</span>
+                        </div>
+                        <p>Intent classification accuracy and volume</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: #1f2937; color: #d1d5db; padding: 40px 0; margin-top: 64px;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <h3 style="color: #f9fafb; margin-bottom: 16px;">📚 One-Tap Services Product Analysis</h3>
+                <p style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                    Complete user journey documentation based on actual Luna AI chatbot implementation. 
+                    This analysis provides actionable insights for product optimization and customer experience enhancement.
+                </p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px; margin-bottom: 32px;">
+                <div>
+                    <h4 style="color: #f9fafb; margin-bottom: 12px;">🎯 Journey Highlights</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 0.875rem; line-height: 1.6;">
+                        <li>• Personalized AI assistant (Luna)</li>
+                        <li>• Hybrid chat + form interface</li>
+                        <li>• Real-time order management</li>
+                        <li>• Flexible booking modifications</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: #f9fafb; margin-bottom: 12px;">🚀 Key Strengths</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 0.875rem; line-height: 1.6;">
+                        <li>• Mobile-first design approach</li>
+                        <li>• Strong social proof (4.8★ rating)</li>
+                        <li>• Transparent pricing model</li>
+                        <li>• Seamless experience continuity</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: #f9fafb; margin-bottom: 12px;">📊 Business Impact</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 0.875rem; line-height: 1.6;">
+                        <li>• 13.6K customer reviews</li>
+                        <li>• 350+ trusted users</li>
+                        <li>• 360° service coverage</li>
+                        <li>• Premium service positioning</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: #f9fafb; margin-bottom: 12px;">🔮 Growth Opportunities</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 0.875rem; line-height: 1.6;">
+                        <li>• Enhanced AI capabilities</li>
+                        <li>• Multimedia problem assessment</li>
+                        <li>• Integrated payment processing</li>
+                        <li>• Proactive service notifications</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center; padding-top: 24px; border-top: 1px solid #374151;">
+                <p style="font-size: 0.875rem; opacity: 0.8;">
+                    📋 Based on actual One-Tap Services implementation | 🔄 Analysis Date: August 2025 | 📈 Real user journey documentation
+                </p>
+                <p style="font-size: 0.75rem; opacity: 0.6; margin-top: 8px;">
+                    Product management insights derived from live chatbot interactions and user interface analysis
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced interactivity for better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add intersection observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all journey phases
+            document.querySelectorAll('.journey-phase').forEach(phase => {
+                phase.style.opacity = '0';
+                phase.style.transform = 'translateY(20px)';
+                phase.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(phase);
+            });
+
+            // Add hover effects for interactive elements
+            document.querySelectorAll('.phase-metric, .metric-card, .luna-interface').forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.02)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                element.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Add click tracking for analytics
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.phase-metric')) {
+                    console.log('Phase metric clicked:', e.target.textContent);
+                }
+                
+                if (e.target.closest('.luna-interface')) {
+                    console.log('Luna interface interaction:', e.target.textContent);
+                }
+            });
+
+            // Smooth scrolling for better navigation
+            const phases = document.querySelectorAll('.journey-phase');
+            phases.forEach((phase, index) => {
+                phase.addEventListener('click', function() {
+                    if (index < phases.length - 1) {
+                        phases[index + 1].scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+
+        // Print-friendly styles
+        window.addEventListener('beforeprint', function() {
+            document.querySelectorAll('.journey-phase').forEach(phase => {
+                phase.style.pageBreakInside = 'avoid';
+            });
+        });
+    </script>
+
+    <style>
+        /* Additional responsive and accessibility improvements */
+        @media (max-width: 640px) {
+            .phase-metrics {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .luna-interface {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+            
+            .booking-form {
+                padding: 16px;
+            }
+            
+            .form-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #f1f5f9;
+            }
+            
+            .content {
+                background: #1e293b;
+            }
+            
+            .user-flow, .booking-form, .success-metrics {
+                background: #334155;
+                border-color: #475569;
+            }
+            
+            .metric-card {
+                background: #475569;
+                border-color: #64748b;
+            }
+        }
+
+        /* Enhanced accessibility */
+        .journey-phase:focus-within {
+            outline: 2px solid #7c3aed;
+            outline-offset: 4px;
+            border-radius: 8px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .phase-number {
+                background: #000000;
+                color: #ffffff;
+            }
+            
+            .luna-interface {
+                background: #000000;
+                color: #ffffff;
+                border: 2px solid #ffffff;
+            }
+        }
+    </style>
+    <script>
+        function switchDashboardTab(evt, tabName) {
+            // Hide all dashboard contents
+            const dashboardContents = document.querySelectorAll('.dashboard-content');
+            dashboardContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all dashboard tabs
+            const dashboardTabs = document.querySelectorAll('.dashboard-tab');
+            dashboardTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected content and mark tab as active
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function initializeDashboard() {
+            // Simulate real-time updates
+            setInterval(() => {
+                const metrics = document.querySelectorAll('.metric-card-value');
+                metrics.forEach(metric => {
+                    if (Math.random() > 0.95) { // 5% chance of update
+                        metric.style.color = '#10b981';
+                        setTimeout(() => {
+                            metric.style.color = '#1f2937';
+                        }, 1000);
+                    }
+                });
+            }, 5000);
+
+            // Add loading simulation for metric cards
+            const metricCards = document.querySelectorAll('.metric-card-large, .metric-card-medium');
+            metricCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.add('loading');
+                    setTimeout(() => {
+                        this.classList.remove('loading');
+                    }, 2000);
+                });
+            });
+
+            // Simulate WhatsApp integration
+            document.querySelectorAll('.action-btn.whatsapp').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const customerName = this.closest('.table-row').querySelector('strong').textContent;
+                    alert(`Opening WhatsApp chat with ${customerName}...`);
+                });
+            });
+
+            // Simulate phone call integration
+            document.querySelectorAll('.action-btn.call').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const phoneNumber = this.closest('.table-row').querySelector('.customer-contact, .contact-info').textContent;
+                    alert(`Calling ${phoneNumber}...`);
+                });
+            });
+
+            // Real-time status updates
+            const statusIndicator = document.querySelector('.status-indicator');
+            const lastUpdated = document.querySelector('.last-updated');
+            
+            setInterval(() => {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-GB', { 
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                lastUpdated.textContent = `Updated: ${timeString}`;
+            }, 1000);
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+        });
+    </script>
+</body>
+</html>
